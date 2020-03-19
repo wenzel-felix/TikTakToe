@@ -28,7 +28,9 @@ class Game:
                 self.user_input = 1
             else:
                 print("\nUngültige Eingabe bitte erneut eingeben....\n")
-            os.system("clear")
+
+            ##Clear
+            os.system('cls')
 
     def rematch(self):
         self.reset_board()
@@ -83,10 +85,10 @@ class Game:
         if self.turn_counter == 0:
             self.show_board()
         if self.active:
+            self.active = False
             if self.bot_participate:
-                self.bot_turn()
+                self.bot_turn(self.board)
             else:
-                self.active = False
                 row, col = input(f"@Spieler {self.players[1][0]}: Reihe, Spalte ").split(",")
                 while turn:
                     if self.board[int(row) - 1][int(col) - 1] == self.dummy:
@@ -108,8 +110,95 @@ class Game:
         self.turn_counter += 1
         self.show_board()
 
-    def bot_turn(self):
+    def bot_turn(self, x_board):
+        print(f"@Bot {self.players[1][0]}")
+        bestVal = -1000
+        bestMove = []
+        row, col = -1, -1
+        bestMove.append(row)
+        bestMove.append(col)
 
+        for i in range(3):
+            for x in range(3):
+                if x_board[i][x] == self.dummy:
+                    x_board[i][x] = self.players[1][1]
+                    moveVal = self.minimax(x_board, 0, False)
+                    x_board[i][x] = self.dummy
+
+                    if moveVal > bestVal:
+                        bestMove[0] = i
+                        bestMove[1] = x
+                        bestVal = moveVal
+        self.board[bestMove[0]][bestMove[1]] = self.players[1][1]
+
+    def minimax(self, x_board, depth, isMax):
+        score = self.game_value()
+
+        if score == 10:
+            return score
+        if score == -10:
+            return score
+        if self.turn_counter == 9:
+            return 0
+
+        if isMax:
+            best = -1000
+
+            for i in range(3):
+                for x in range(3):
+                    if x_board[i][x] == self.dummy:
+                        x_board[i][x] = self.players[1][1]
+
+                        best = max(best, self.minimax(x_board,depth+1, not isMax))
+
+                        x_board[i][x] = self.dummy
+            return best
+
+        else:
+            best = 1000
+
+            for i in range(3):
+                for x in range(3):
+                    if x_board[i][x] == self.dummy:
+                        x_board[i][x] = self.players[0][1]
+
+                        best = max(best, self.minimax(x_board,depth+1, not isMax))
+
+                        x_board[i][x] = self.dummy
+            return best
+
+    def game_value(self):
+        for i in range(3):
+            if self.board[i][0] == self.board[i][1]:
+                if self.board[i][1] == self.board[i][2]:
+                    if self.board[i][1] != self.dummy:
+                        if not self.turn_counter % 2 and self.turn_counter != 0:
+                            return -10
+                        else:
+                            return 10
+        for i in range(3):
+            if self.board[0][i] == self.board[1][i]:
+                if self.board[1][i] == self.board[2][i]:
+                    if self.board[1][i] != self.dummy:
+                        if not self.turn_counter % 2 and self.turn_counter != 0:
+                            return -10
+                        else:
+                            return 10
+        if self.board[0][0] == self.board[1][1]:
+            if self.board[1][1] == self.board[2][2]:
+                if self.board[1][1] != self.dummy:
+                    if not self.turn_counter % 2 and self.turn_counter != 0:
+                        return -10
+                    else:
+                        return 10
+        if self.board[0][2] == self.board[1][1]:
+            if self.board[1][1] == self.board[2][0]:
+                if self.board[1][1] != self.dummy:
+                    if not self.turn_counter % 2 and self.turn_counter != 0:
+                        return -10
+                    else:
+                        return 10
+        return 0
 
     def win_det(self):
         for i in range(3):
