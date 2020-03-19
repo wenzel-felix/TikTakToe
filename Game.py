@@ -1,6 +1,3 @@
-import os
-
-
 class Game:
     players = []
     active = False
@@ -27,10 +24,7 @@ class Game:
                 print("\nBeendet.....")
                 self.user_input = 1
             else:
-                print("\nUngültige Eingabe bitte erneut eingeben....\n")
-
-            ##Clear
-            os.system('cls')
+                print("\nUngültige Eingabe bitte erneut eingeben....Enter drücken....\n")
 
     def rematch(self):
         self.reset_board()
@@ -64,6 +58,7 @@ class Game:
 
     def get_players(self):
         if input("Multiplayer  J/N?\n") == "J":
+            self.bot_participate = False
             for i in range(2):
                 player = (input(f'Spieler {i + 1} Name: '), i)
                 self.players.append(player)
@@ -122,7 +117,8 @@ class Game:
             for x in range(3):
                 if x_board[i][x] == self.dummy:
                     x_board[i][x] = self.players[1][1]
-                    moveVal = self.minimax(x_board, 0, False)
+                    turn = self.turn_counter
+                    moveVal = self.minimax(x_board, 0, False, turn)
                     x_board[i][x] = self.dummy
 
                     if moveVal > bestVal:
@@ -131,68 +127,61 @@ class Game:
                         bestVal = moveVal
         self.board[bestMove[0]][bestMove[1]] = self.players[1][1]
 
-    def minimax(self, x_board, depth, isMax):
+    def minimax(self, x_board, depth, isMax, turn):
         score = self.game_value()
-
+        turn += 1
         if score == 10:
             return score
         if score == -10:
             return score
-        if self.turn_counter == 9:
+        if turn < 9:
             return 0
-
         if isMax:
             best = -1000
-
             for i in range(3):
                 for x in range(3):
                     if x_board[i][x] == self.dummy:
                         x_board[i][x] = self.players[1][1]
 
-                        best = max(best, self.minimax(x_board,depth+1, not isMax))
+                        best = max(best, self.minimax(x_board, depth+1, not isMax, turn))
 
                         x_board[i][x] = self.dummy
             return best
 
         else:
             best = 1000
-
             for i in range(3):
                 for x in range(3):
                     if x_board[i][x] == self.dummy:
                         x_board[i][x] = self.players[0][1]
 
-                        best = max(best, self.minimax(x_board,depth+1, not isMax))
+                        best = max(best, self.minimax(x_board, depth+1, isMax, turn))
 
                         x_board[i][x] = self.dummy
             return best
 
     def game_value(self):
         for i in range(3):
-            if self.board[i][0] == self.board[i][1]:
-                if self.board[i][1] == self.board[i][2]:
-                    if self.board[i][1] != self.dummy:
-                        if not self.turn_counter % 2 and self.turn_counter != 0:
-                            return -10
-                        else:
-                            return 10
-        for i in range(3):
-            if self.board[0][i] == self.board[1][i]:
-                if self.board[1][i] == self.board[2][i]:
-                    if self.board[1][i] != self.dummy:
-                        if not self.turn_counter % 2 and self.turn_counter != 0:
-                            return -10
-                        else:
-                            return 10
-        if self.board[0][0] == self.board[1][1]:
-            if self.board[1][1] == self.board[2][2]:
-                if self.board[1][1] != self.dummy:
+            if self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][2]:
+                if self.board[i][1] != self.dummy:
                     if not self.turn_counter % 2 and self.turn_counter != 0:
                         return -10
                     else:
                         return 10
-        if self.board[0][2] == self.board[1][1]:
-            if self.board[1][1] == self.board[2][0]:
+        for i in range(3):
+            if self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][i]:
+                if self.board[1][i] != self.dummy:
+                    if not self.turn_counter % 2 and self.turn_counter != 0:
+                        return -10
+                    else:
+                        return 10
+        if self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
+            if self.board[1][1] != self.dummy:
+                if not self.turn_counter % 2 and self.turn_counter != 0:
+                    return -10
+                else:
+                    return 10
+        if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
                 if self.board[1][1] != self.dummy:
                     if not self.turn_counter % 2 and self.turn_counter != 0:
                         return -10
