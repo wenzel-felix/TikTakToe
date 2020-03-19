@@ -118,7 +118,7 @@ class Game:
                 if x_board[i][x] == self.dummy:
                     x_board[i][x] = self.players[1][1]
                     turn = self.turn_counter
-                    moveVal = self.minimax(x_board, 0, False, turn)
+                    moveVal = self.minimax(x_board, 0, False)
                     x_board[i][x] = self.dummy
 
                     if moveVal > bestVal:
@@ -127,15 +127,12 @@ class Game:
                         bestVal = moveVal
         self.board[bestMove[0]][bestMove[1]] = self.players[1][1]
 
-    def minimax(self, x_board, depth, isMax, turn):
+    def minimax(self, x_board, depth, isMax):
         score = self.game_value()
-        turn += 1
         if score == 10:
-            return score
+            return score - depth
         if score == -10:
-            return score
-        if turn < 9:
-            return 0
+            return score + depth
         if isMax:
             best = -1000
             for i in range(3):
@@ -143,7 +140,7 @@ class Game:
                     if x_board[i][x] == self.dummy:
                         x_board[i][x] = self.players[1][1]
 
-                        best = max(best, self.minimax(x_board, depth+1, not isMax, turn))
+                        best = max(best, self.minimax(x_board, depth+1, not isMax))
 
                         x_board[i][x] = self.dummy
             return best
@@ -155,7 +152,7 @@ class Game:
                     if x_board[i][x] == self.dummy:
                         x_board[i][x] = self.players[0][1]
 
-                        best = max(best, self.minimax(x_board, depth+1, isMax, turn))
+                        best = max(best, self.minimax(x_board, depth+1, isMax))
 
                         x_board[i][x] = self.dummy
             return best
@@ -182,11 +179,11 @@ class Game:
                 else:
                     return 10
         if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
-                if self.board[1][1] != self.dummy:
-                    if not self.turn_counter % 2 and self.turn_counter != 0:
-                        return -10
-                    else:
-                        return 10
+            if self.board[1][1] != self.dummy:
+                if not self.turn_counter % 2 and self.turn_counter != 0:
+                    return -10
+                else:
+                    return 10
         return 0
 
     def win_det(self):
