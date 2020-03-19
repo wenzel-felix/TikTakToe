@@ -8,6 +8,7 @@ class Game:
     board = [[8 for i in range(3)] for i in range(3)]
     turn_counter = 0
     user_input = 0
+    bot_participate = False
 
     def __init__(self):
         self.main_screen()
@@ -47,7 +48,7 @@ class Game:
         while not self.win_det() and self.turn_counter != 9:
             self.player_turn()
         if self.turn_counter == 9:
-            print("Alle Züge aufgebraucht")
+            print("Unentschieden")
         if self.win_det():
             if self.turn_counter % 2:
                 print(f"{self.players[0][0]} hat gewonnen!")
@@ -60,9 +61,18 @@ class Game:
         self.user_input = 0
 
     def get_players(self):
-        for i in range(2):
-            player = (input(f'Spieler {i + 1} Name: '), i)
-            self.players.append(player)
+        if input("Multiplayer  J/N?\n") == "J":
+            for i in range(2):
+                player = (input(f'Spieler {i + 1} Name: '), i)
+                self.players.append(player)
+        else:
+            self.bot_participate = True
+            for i in range(2):
+                name = "Spieler"
+                if i == 1:
+                    name = "Bot"
+                player = (input(f'{name} Name: '), i)
+                self.players.append(player)
 
     def show_board(self):
         for i in self.board:
@@ -73,16 +83,18 @@ class Game:
         if self.turn_counter == 0:
             self.show_board()
         if self.active:
-            self.active = False
-            row, col = input(f"@Spieler {self.players[1][0]}: Reihe, Spalte ").split(",")
-            while turn:
-                if self.board[int(row) - 1][int(col) - 1] == self.dummy:
-                    self.board[int(row) - 1][int(col) - 1] = self.players[1][1]
-                    turn = False
-                else:
-                    row, col = input(
-                        f"@Spieler {self.players[1][0]} Diese Platz ist schon belegt bitte erneut eingeben: Reihe, Spalte ").split(
-                        ",")
+            if self.bot_participate:
+                self.bot_turn()
+            else:
+                self.active = False
+                row, col = input(f"@Spieler {self.players[1][0]}: Reihe, Spalte ").split(",")
+                while turn:
+                    if self.board[int(row) - 1][int(col) - 1] == self.dummy:
+                        self.board[int(row) - 1][int(col) - 1] = self.players[1][1]
+                        turn = False
+                    else:
+                        row, col = input(
+                            f"@Spieler {self.players[1][0]} Diese Platz ist schon belegt bitte erneut eingeben: Reihe, Spalte ").split(",")
         else:
             self.active = True
             row, col = input(f"@Spieler {self.players[0][0]}: Reihe, Spalte ").split(",")
@@ -92,10 +104,12 @@ class Game:
                     turn = False
                 else:
                     row, col = input(
-                        f"@Spieler {self.players[0][0]} Diese Platz ist schon belegt bitte erneut eingeben: Reihe, Spalte ").split(
-                        ",")
+                        f"@Spieler {self.players[0][0]} Diese Platz ist schon belegt bitte erneut eingeben: Reihe, Spalte ").split(",")
         self.turn_counter += 1
         self.show_board()
+
+    def bot_turn(self):
+
 
     def win_det(self):
         for i in range(3):
