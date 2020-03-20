@@ -3,14 +3,13 @@ class Game:
     #vars
     players = []
     active = False
+    turn_counter = 0
+    user_input = 0
+    bot_participate = False
 
     #dummy var equals 'empty' board's filler
     dummy = 8
     board = [[8 for i in range(3)] for i in range(3)]
-
-    turn_counter = 0
-    user_input = 0
-    bot_participate = False
 
     def __init__(self):
         self.main_screen()
