@@ -14,51 +14,39 @@ class Game:
     def __init__(self):
         self.main_screen()
 
-    #sets up menue-window to start the game
+    #sets up menu-window to start the game
     def main_screen(self):
         while self.user_input == 0:
             if self.turn_counter == 0:
-                x = input("'1' für Neues Spiel\n'3' für Beenden\n")
+                x = input("'1' to start new game\n'3' to exit\n")
             else:
-                x = input("'1' für Neues Spiel\n'2' für Rematch\n'3' für Beenden\n")
+                x = input("'1' to start new game\n'2' for a rematch\n'3' to exit\n")
             if int(x) == 1:
-                self.match()
+                self.match(True)
             elif int(x) == 2 and self.turn_counter != 0:
-                self.rematch()
+                self.match(False)
             elif int(x) == 3:
-                print("\nBeendet.....")
+                print("\nExited.....")
                 self.user_input = 1
             else:
-                print("\nUngültige Eingabe bitte erneut eingeben....Enter drücken....\n")
+                print("\nInvalid input, please try it again.....\n")
 
-    #function for rematch with same Player/Bot-name
-    def rematch(self):
+    #function to start a match
+    def match(self, new_game):
         self.reset_board()
+        if new_game:
+            self.get_players()
         while not self.win_det() and self.turn_counter != 9:
             self.player_turn()
         if self.turn_counter == 9:
-            print("Unentschieden")
+            print("Tie")
         if self.win_det():
             if self.turn_counter % 2:
-                print(f"{self.players[0][0]} hat gewonnen!")
+                print(f"{self.players[0][0]} won!")
             else:
-                print(f"{self.players[1][0]} hat gewonnen!")
+                print(f"{self.players[1][0]} won!")
 
-    #function to start a match from scratch
-    def match(self):
-        self.reset_board()
-        self.get_players()
-        while not self.win_det() and self.turn_counter != 9:
-            self.player_turn()
-        if self.turn_counter == 9:
-            print("Unentschieden")
-        if self.win_det():
-            if self.turn_counter % 2:
-                print(f"{self.players[0][0]} hat gewonnen!")
-            else:
-                print(f"{self.players[1][0]} hat gewonnen!")
-
-    #resets the board and sets user_input to 0 for the menue's while-loop
+    #resets the board and sets user_input to 0 for the menu's while-loop
     def reset_board(self):
         self.board = [[8 for i in range(3)] for i in range(3)]
         self.turn_counter = 0
@@ -66,18 +54,18 @@ class Game:
 
     #creates a player-list
     def get_players(self):
-        if input("Multiplayer  J/N?\n") == "J":
+        if input("multiplayer  y/n?\n") == "y":
             self.bot_participate = False
             for i in range(2):
-                player = (input(f'Spieler {i + 1} Name: '), i)
+                player = (input(f'player {i + 1} name: '), i)
                 self.players.append(player)
         else:
             self.bot_participate = True
             for i in range(2):
-                name = "Spieler"
+                name = "player"
                 if i == 1:
-                    name = "Bot"
-                player = (input(f'{name} Name: '), i)
+                    name = "bot"
+                player = (input(f'{name} name: '), i)
                 self.players.append(player)
 
     #prints the current board
@@ -95,30 +83,30 @@ class Game:
             if self.bot_participate:
                 self.bot_turn(self.board)
             else:
-                row, col = input(f"@Spieler {self.players[1][0]}: Reihe, Spalte ").split(",")
+                row, col = input(f"@player {self.players[1][0]}: row, column ").split(",")
                 while turn:
                     if self.board[int(row) - 1][int(col) - 1] == self.dummy:
                         self.board[int(row) - 1][int(col) - 1] = self.players[1][1]
                         turn = False
                     else:
                         row, col = input(
-                            f"@Spieler {self.players[1][0]} Diese Platz ist schon belegt bitte erneut eingeben: Reihe, Spalte ").split(",")
+                            f"@player {self.players[1][0]} this field is not empty, please try again: row, column ").split(",")
         else:
             self.active = True
-            row, col = input(f"@Spieler {self.players[0][0]}: Reihe, Spalte ").split(",")
+            row, col = input(f"@player {self.players[0][0]}: row, column ").split(",")
             while turn:
                 if self.board[int(row) - 1][int(col) - 1] == self.dummy:
                     self.board[int(row) - 1][int(col) - 1] = self.players[0][1]
                     turn = False
                 else:
                     row, col = input(
-                        f"@Spieler {self.players[0][0]} Diese Platz ist schon belegt bitte erneut eingeben: Reihe, Spalte ").split(",")
+                        f"@player {self.players[0][0]} this field is not empty, please try again: row, column ").split(",")
         self.turn_counter += 1
         self.show_board()
 
     #plays the best move for the bot (depending on minimax value)
     def bot_turn(self, x_board):
-        print(f"@Bot {self.players[1][0]}")
+        print(f"@bot {self.players[1][0]}")
         bestVal = -1000
         bestMove = []
         row, col = -1, -1
