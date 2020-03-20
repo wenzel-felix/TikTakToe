@@ -1,8 +1,13 @@
 class Game:
+
+    #vars
     players = []
     active = False
+
+    #dummy var equals 'empty' board's filler
     dummy = 8
     board = [[8 for i in range(3)] for i in range(3)]
+
     turn_counter = 0
     user_input = 0
     bot_participate = False
@@ -10,6 +15,7 @@ class Game:
     def __init__(self):
         self.main_screen()
 
+    #sets up menue-window to start the game
     def main_screen(self):
         while self.user_input == 0:
             if self.turn_counter == 0:
@@ -26,18 +32,20 @@ class Game:
             else:
                 print("\nUngültige Eingabe bitte erneut eingeben....Enter drücken....\n")
 
+    #function for rematch with same Player/Bot-name
     def rematch(self):
         self.reset_board()
         while not self.win_det() and self.turn_counter != 9:
             self.player_turn()
         if self.turn_counter == 9:
-            print("Alle Züge aufgebraucht")
+            print("Unentschieden")
         if self.win_det():
             if self.turn_counter % 2:
                 print(f"{self.players[0][0]} hat gewonnen!")
             else:
                 print(f"{self.players[1][0]} hat gewonnen!")
 
+    #function to start a match from scratch
     def match(self):
         self.reset_board()
         self.get_players()
@@ -51,11 +59,13 @@ class Game:
             else:
                 print(f"{self.players[1][0]} hat gewonnen!")
 
+    #resets the board and sets user_input to 0 for the menue's while-loop
     def reset_board(self):
         self.board = [[8 for i in range(3)] for i in range(3)]
         self.turn_counter = 0
         self.user_input = 0
 
+    #creates a player-list
     def get_players(self):
         if input("Multiplayer  J/N?\n") == "J":
             self.bot_participate = False
@@ -71,10 +81,12 @@ class Game:
                 player = (input(f'{name} Name: '), i)
                 self.players.append(player)
 
+    #prints the current board
     def show_board(self):
         for i in self.board:
             print(i)
 
+    #resonsible for the player's turns (with bot_turn-function implemented)
     def player_turn(self):
         turn = True
         if self.turn_counter == 0:
@@ -105,6 +117,7 @@ class Game:
         self.turn_counter += 1
         self.show_board()
 
+    #plays the best move for the bot (depending on minimax value)
     def bot_turn(self, x_board):
         print(f"@Bot {self.players[1][0]}")
         bestVal = -1000
@@ -127,12 +140,14 @@ class Game:
                         bestVal = moveVal
         self.board[bestMove[0]][bestMove[1]] = self.players[1][1]
 
+    #searches for the highest value turn for the bot
     def minimax(self, x_board, depth, isMax):
         score = self.game_value()
         if score == 10:
             return score - depth
         if score == -10:
             return score + depth
+        #simulates the bot moves
         if isMax:
             best = -1000
             for i in range(3):
@@ -144,7 +159,7 @@ class Game:
 
                         x_board[i][x] = self.dummy
             return best
-
+        #simulates the player moves
         else:
             best = 1000
             for i in range(3):
@@ -152,40 +167,42 @@ class Game:
                     if x_board[i][x] == self.dummy:
                         x_board[i][x] = self.players[0][1]
 
-                        best = max(best, self.minimax(x_board, depth+1, isMax))
+                        best = min(best, self.minimax(x_board, depth+1, isMax))
 
                         x_board[i][x] = self.dummy
             return best
 
+    #returns the values for the minimax function
     def game_value(self):
         for i in range(3):
             if self.board[i][0] == self.board[i][1] and self.board[i][1] == self.board[i][2]:
                 if self.board[i][1] != self.dummy:
-                    if not self.turn_counter % 2 and self.turn_counter != 0:
+                    if not self.active:
                         return -10
                     else:
                         return 10
         for i in range(3):
             if self.board[0][i] == self.board[1][i] and self.board[1][i] == self.board[2][i]:
                 if self.board[1][i] != self.dummy:
-                    if not self.turn_counter % 2 and self.turn_counter != 0:
+                    if not self.active:
                         return -10
                     else:
                         return 10
         if self.board[0][0] == self.board[1][1] and self.board[1][1] == self.board[2][2]:
             if self.board[1][1] != self.dummy:
-                if not self.turn_counter % 2 and self.turn_counter != 0:
+                if not self.active:
                     return -10
                 else:
                     return 10
         if self.board[0][2] == self.board[1][1] and self.board[1][1] == self.board[2][0]:
             if self.board[1][1] != self.dummy:
-                if not self.turn_counter % 2 and self.turn_counter != 0:
+                if not self.active:
                     return -10
                 else:
                     return 10
         return 0
 
+    #looks every turn if somebody has won
     def win_det(self):
         for i in range(3):
             if self.board[i][0] == self.board[i][1]:
@@ -206,6 +223,5 @@ class Game:
                 if self.board[1][1] != self.dummy:
                     return True
         return False
-
 
 g = Game()
